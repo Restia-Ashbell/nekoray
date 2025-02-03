@@ -1,6 +1,8 @@
 #include "./ui_mainwindow.h"
 #include "mainwindow.h"
 
+#include "libbox.h"
+
 #include "fmt/Preset.hpp"
 #include "db/ProfileFilter.hpp"
 #include "db/ConfigBuilder.hpp"
@@ -148,7 +150,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     MW_show_log_ext_vt100 = [=](const QString &log) {
         runOnUiThread([=] { show_log_impl(cleanVT100String(log)); });
     };
-
+    logTimer.start(100);
+    connect(&logTimer, &QTimer::timeout, this, [=] {
+        if (logBuffer[0] != '\0') {
+            MW_show_log(QString::fromUtf8(logBuffer));
+            std::memset(logBuffer, 0, sizeof(logBuffer));
+        }
+    });
     // table UI
     ui->proxyListTable->callback_save_order = [=] {
         auto group = NekoGui::profileManager->CurrentGroup();
@@ -344,7 +352,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->menu_qr, &QAction::triggered, this, [=]() { display_qr_link(false); });
     connect(ui->menu_tcp_ping, &QAction::triggered, this, [=]() { speedtest_current_group(0); });
     connect(ui->menu_url_test, &QAction::triggered, this, [=]() { speedtest_current_group(1); });
-    connect(ui->menu_full_test, &QAction::triggered, this, [=]() { speedtest_current_group(2); });
+    connect(ui->menu_full_test, &QAction::triggered, this, [=]() { speedtest_current_group(999); });
     connect(ui->menu_stop_testing, &QAction::triggered, this, [=]() { speedtest_current_group(114514); });
     //
     auto set_selected_or_group = [=](int mode) {
@@ -390,33 +398,36 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
     refresh_status();
 
-    // Prepare core
-    NekoGui::dataStore->core_token = GetRandomString(32);
-    NekoGui::dataStore->core_port = MkPort();
-    if (NekoGui::dataStore->core_port <= 0) NekoGui::dataStore->core_port = 19810;
+    // // Prepare core
+    // NekoGui::dataStore->core_token = GetRandomString(32);
+    // NekoGui::dataStore->core_port = MkPort();
+    // if (NekoGui::dataStore->core_port <= 0) NekoGui::dataStore->core_port = 19810;
 
-    auto core_path = QApplication::applicationDirPath() + "/";
-    core_path += "nekobox_core";
+    // auto core_path = QApplication::applicationDirPath() + "/";
+    // core_path += "nekobox_core";
 
-    QStringList args;
-    args.push_back("nekobox");
-    args.push_back("-port");
-    args.push_back(Int2String(NekoGui::dataStore->core_port));
-    if (NekoGui::dataStore->flag_debug) args.push_back("-debug");
+    // QStringList args;
+    // args.push_back("nekobox");
+    // args.push_back("-port");
+    // args.push_back(Int2String(NekoGui::dataStore->core_port));
+    // if (NekoGui::dataStore->flag_debug) args.push_back("-debug");
 
-    // Start core
-    runOnUiThread(
-        [=] {
-            core_process = new NekoGui_sys::CoreProcess(core_path, args);
-            // Remember last started
-            if (NekoGui::dataStore->remember_enable && NekoGui::dataStore->remember_id >= 0) {
-                core_process->start_profile_when_core_is_up = NekoGui::dataStore->remember_id;
-            }
-            // Setup
-            core_process->Start();
-            setup_grpc();
-        },
-        DS_cores);
+    // // Start core
+    // runOnUiThread(
+    //     [=] {
+    //         core_process = new NekoGui_sys::CoreProcess(core_path, args);
+    //         // Remember last started
+    //         if (NekoGui::dataStore->remember_enable && NekoGui::dataStore->remember_id >= 0) {
+    //             core_process->start_profile_when_core_is_up = NekoGui::dataStore->remember_id;
+    //         }
+    //         // Setup
+    //         core_process->Start();
+    //         setup_grpc();
+    //     },
+    //     DS_cores);
+
+    BoxMain(logBuffer);
+    setup_grpc();
 
     // Remember system proxy
     if (NekoGui::dataStore->remember_enable || NekoGui::dataStore->flag_restart_tun_on) {
@@ -688,7 +699,6 @@ void MainWindow::on_menu_exit_triggered() {
         hide();
         runOnNewThread([=] {
             sem_stopped.acquire();
-            stop_core_daemon();
             runOnUiThread([=] {
                 on_menu_exit_triggered(); // continue exit progress
             });
@@ -824,8 +834,7 @@ void MainWindow::refresh_status(const QString &traffic_update) {
     auto refresh_speed_label = [=] {
         if (NekoGui::dataStore->disable_traffic_stats) {
             ui->label_speed->setText("");
-        }
-        else if (traffic_update_cache == "") {
+        } else if (traffic_update_cache == "") {
             ui->label_speed->setText(QObject::tr("Proxy: %1\nDirect: %2").arg("", ""));
         } else {
             ui->label_speed->setText(traffic_update_cache);
@@ -1644,9 +1653,9 @@ void MainWindow::on_masterLogBrowser_customContextMenuRequested(const QPoint &po
 void MainWindow::on_tabWidget_customContextMenuRequested(const QPoint &p) {
     int clickedIndex = ui->tabWidget->tabBar()->tabAt(p);
     if (clickedIndex == -1) {
-        auto* menu = new QMenu(this);
-        auto* addAction = new QAction(tr("Add new Group"), this);
-        connect(addAction, &QAction::triggered, this, [=]{
+        auto *menu = new QMenu(this);
+        auto *addAction = new QAction(tr("Add new Group"), this);
+        connect(addAction, &QAction::triggered, this, [=] {
             auto ent = NekoGui::ProfileManager::NewGroup();
             auto dialog = new DialogEditGroup(ent, this);
             int ret = dialog->exec();
@@ -1664,12 +1673,12 @@ void MainWindow::on_tabWidget_customContextMenuRequested(const QPoint &p) {
     }
 
     ui->tabWidget->setCurrentIndex(clickedIndex);
-    auto* menu = new QMenu(this);
+    auto *menu = new QMenu(this);
 
-    auto* addAction = new QAction(tr("Add new Group"), this);
-    auto* deleteAction = new QAction(tr("Delete selected Group"), this);
-    auto* editAction = new QAction(tr("Edit selected Group"), this);
-    connect(addAction, &QAction::triggered, this, [=]{
+    auto *addAction = new QAction(tr("Add new Group"), this);
+    auto *deleteAction = new QAction(tr("Delete selected Group"), this);
+    auto *editAction = new QAction(tr("Edit selected Group"), this);
+    connect(addAction, &QAction::triggered, this, [=] {
         auto ent = NekoGui::ProfileManager::NewGroup();
         auto dialog = new DialogEditGroup(ent, this);
         int ret = dialog->exec();
@@ -1695,7 +1704,7 @@ void MainWindow::on_tabWidget_customContextMenuRequested(const QPoint &p) {
             show_group(newGroupId);
         }
     });
-    connect(editAction, &QAction::triggered, this, [=]{
+    connect(editAction, &QAction::triggered, this, [=] {
         auto id = NekoGui::profileManager->groupsTabOrder[clickedIndex];
         auto ent = NekoGui::profileManager->groups[id];
         auto dialog = new DialogEditGroup(ent, this);

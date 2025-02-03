@@ -15,6 +15,7 @@
 #include <QShortcut>
 #include <QSemaphore>
 #include <QMutex>
+#include <QTimer>
 
 #include "GroupSort.hpp"
 
@@ -165,6 +166,9 @@ private:
     QSemaphore sem_stopped;
     int exit_reason = 0;
 
+    char logBuffer[1024 * 64] = {0};
+    QTimer logTimer;
+
     QList<std::shared_ptr<NekoGui::ProxyEntity>> get_now_selected_list();
 
     QList<std::shared_ptr<NekoGui::ProxyEntity>> get_selected_or_group();
@@ -193,9 +197,15 @@ private:
 
     void speedtest_current();
 
-    static void stop_core_daemon();
-
     void CheckUpdate();
+
+    enum TestMode {
+        TcpPing,
+        UrlTest,
+        UdpTest,
+        SpeedTest,
+        IpTest
+    };
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

@@ -44,6 +44,9 @@ if (NOT NKR_LIBS)
     endif ()
 endif ()
 
+include_directories(${CMAKE_SOURCE_DIR}/libs/deps/built/include)
+link_directories(${CMAKE_SOURCE_DIR}/libs/deps/built/lib)
+
 if (NOT NKR_DISABLE_LIBS)
     list(APPEND CMAKE_PREFIX_PATH ${NKR_LIBS})
 endif ()
@@ -64,9 +67,6 @@ find_package(Threads)
 if (NKR_PACKAGE OR NKR_PACKAGE_MACOS)
     nkr_add_compile_definitions(NKR_CPP_USE_APPDATA)
 endif ()
-
-include("cmake/myproto.cmake")
-list(APPEND NKR_EXTERNAL_TARGETS myproto)
 
 find_package(yaml-cpp CONFIG REQUIRED) # only Release is built
 list(APPEND NKR_EXTERNAL_TARGETS yaml-cpp::yaml-cpp)
@@ -102,8 +102,6 @@ set(PROJECT_SOURCES
 
         3rdparty/qv2ray/v3/components/GeositeReader/GeositeReader.cpp
         3rdparty/qv2ray/v3/components/GeositeReader/picoproto.cpp
-
-        rpc/gRPC.cpp
 
         db/Database.cpp
         db/traffic/TrafficLooper.cpp
@@ -258,6 +256,7 @@ target_link_libraries(nekoray PRIVATE
         Threads::Threads
         ${NKR_EXTERNAL_TARGETS}
         ${PLATFORM_LIBRARIES}
+        libbox.dll
 )
 
 qt_finalize_executable(nekoray)

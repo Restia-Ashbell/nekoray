@@ -1,7 +1,8 @@
 #include "TrafficLooper.hpp"
 
-#include "rpc/gRPC.h"
 #include "ui/mainwindow_interface.h"
+
+#include "libbox.h"
 
 #include <QThread>
 #include <QJsonObject>
@@ -25,8 +26,9 @@ namespace NekoGui_traffic {
         if (interval <= 0) return nullptr;
 
         // query
-        auto uplink = NekoGui_rpc::defaultClient->QueryStats(item->tag, "uplink");
-        auto downlink = NekoGui_rpc::defaultClient->QueryStats(item->tag, "downlink");
+        auto Tag = QString::fromStdString(item->tag).toUtf8();
+        auto uplink = BoxGetStats(Tag.data(), "uplink");
+        auto downlink = BoxGetStats(Tag.data(), "downlink");
 
         // add diff
         item->downlink += downlink;
