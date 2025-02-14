@@ -36,7 +36,7 @@ namespace NekoGui_fmt {
         qint64 connectionReceiveWindow = 0;
         bool disableMtuDiscovery = false;
 
-        int hopInterval = 10;
+        int hopInterval = 30;
         QString hopPort = "";
 
         // TUIC

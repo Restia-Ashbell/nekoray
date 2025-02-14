@@ -234,6 +234,11 @@ namespace NekoGui_fmt {
                     {"password", obfsPassword},
                 };
             }
+
+            if (!hopPort.isEmpty()){
+                outbound["server_ports"] = QJsonArray::fromStringList(hopPort.replace('-', ':').split(',', Qt::SkipEmptyParts));
+                outbound["hop_interval"] = QString::number(hopInterval) + "s";
+            }
         } else if (proxy_type == proxy_TUIC) {
             outbound["type"] = "tuic";
             outbound["uuid"] = uuid;
