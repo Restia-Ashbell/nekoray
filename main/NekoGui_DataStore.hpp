@@ -25,8 +25,8 @@ namespace NekoGui {
         QString dns_final_out = "proxy";
 
         // Misc
-        QString domain_strategy = "AsIs";
-        QString outbound_domain_strategy = "AsIs";
+        QString domain_strategy = "";
+        QString outbound_domain_strategy = "";
         int sniffing_mode = SniffingMode::FOR_ROUTING;
 
         explicit Routing(int preset = 0);
