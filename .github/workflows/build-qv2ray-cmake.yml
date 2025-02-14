@@ -43,7 +43,7 @@ jobs:
         if: steps.cache-common.outputs.cache-hit != 'true' && matrix.cross_os != 'windows7'
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23'
+          go-version: '1.24'
       - name: Install Older Golang
         if: steps.cache-common.outputs.cache-hit != 'true' && matrix.cross_os == 'windows7'
         uses: actions/setup-go@v5
@@ -72,16 +72,16 @@ jobs:
         include:
           - platform: windows-latest
             arch: amd64
-            qt_version: "6.8.1"
+            qt_version: "6.8.2"
           - platform: ubuntu-latest
             arch: amd64
-            qt_version: "6.8.1"
+            qt_version: "6.8.2"
           - platform: macos-13
             arch: amd64
-            qt_version: "6.8.1"
+            qt_version: "6.8.2"
           - platform: macos-14
             arch: arm64
-            qt_version: "6.8.1"
+            qt_version: "6.8.2"
       fail-fast: false
     runs-on: ${{ matrix.platform }}
     env:
