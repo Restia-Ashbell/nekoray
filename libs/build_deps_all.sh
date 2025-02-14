@@ -28,12 +28,10 @@ clean() {
 }
 
 #### ZXing ####
-curl -L -o dl.zip https://codeload.github.com/zxing-cpp/zxing-cpp/zip/refs/heads/master
-unzip dl.zip
+git clone --depth 1 https://github.com/zxing-cpp/zxing-cpp
 
-cd zxing-*
-mkdir -p build
-cd build
+mkdir -p zxing-cpp/build
+cd zxing-cpp/build
 
 $cmake .. -GNinja -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_BLACKBOX_TESTS=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX
 ninja && ninja install
@@ -41,12 +39,10 @@ ninja && ninja install
 cd ../..
 
 #### yaml-cpp ####
-curl -L -o dl.zip https://codeload.github.com/jbeder/yaml-cpp/zip/refs/heads/master
-unzip dl.zip
+git clone --depth 1 https://github.com/jbeder/yaml-cpp
 
-cd yaml-*
-mkdir -p build
-cd build
+mkdir -p yaml-cpp/build
+cd yaml-cpp/build
 
 $cmake .. -GNinja -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX
 ninja && ninja install

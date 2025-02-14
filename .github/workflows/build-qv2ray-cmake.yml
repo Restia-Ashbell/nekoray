@@ -179,7 +179,7 @@ jobs:
           path: download-artifact
       - name: Pack
         run: |
-          curl -Lo - https://github.com/tcnksm/ghr/releases/download/v0.16.2/ghr_v0.16.2_linux_amd64.tar.gz | tar xzv
+          curl -Lo - https://github.com/tcnksm/ghr/releases/download/v0.17.0/ghr_v0.17.0_linux_amd64.tar.gz | tar xzv
           mv ghr*linux_amd64/ghr .
           source libs/env_deploy.sh
           COMMIT_HASH=$(git rev-parse --short HEAD)
