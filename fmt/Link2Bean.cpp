@@ -308,6 +308,7 @@ namespace NekoGui_fmt {
             name = url.fragment(QUrl::FullyDecoded);
             serverAddress = url.host();
             serverPort = url.port();
+            hopPort = query.queryItemValue("mport");
             obfsPassword = query.queryItemValue("obfsParam");
             allowInsecure = QStringList{"1", "true"}.contains(query.queryItemValue("insecure"));
             uploadMbps = query.queryItemValue("upmbps").toInt();
@@ -352,6 +353,7 @@ namespace NekoGui_fmt {
             name = url.fragment(QUrl::FullyDecoded);
             serverAddress = url.host();
             serverPort = url.port();
+            hopPort = query.queryItemValue("mport");
             obfsPassword = query.queryItemValue("obfs-password");
             allowInsecure = QStringList{"1", "true"}.contains(query.queryItemValue("insecure"));
 
