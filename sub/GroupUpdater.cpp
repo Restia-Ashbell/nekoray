@@ -33,6 +33,10 @@ namespace NekoGui_sub {
         if (stream->security == "tls" && IsIpAddress(ent->bean->serverAddress) && (!stream->host.isEmpty()) && stream->sni.isEmpty()) {
             stream->sni = stream->host;
         }
+        // 3. transport
+        if (stream->network == "none") {
+            stream->network = "tcp";
+        }
     }
 
     int JsonEndIdx(const QString &str, int begin) {
@@ -144,12 +148,14 @@ namespace NekoGui_sub {
 
         // ShadowSocks
         else if (str.startsWith("ss://")) {
+            needFix = false;
             ent = NekoGui::ProfileManager::NewProxyEntity("shadowsocks");
             ok = ent->ShadowSocksBean()->TryParseLink(str);
         }
 
         // ShadowSocksR
         else if (str.startsWith("ssr://")) {
+            needFix = false;
             ent = NekoGui::ProfileManager::NewProxyEntity("shadowsocksr");
             ok = ent->ShadowSocksRBean()->TryParseLink(str);
         }

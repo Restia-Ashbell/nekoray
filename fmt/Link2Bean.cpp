@@ -218,9 +218,9 @@ namespace NekoGui_fmt {
             password = url.userName();
             stream->network = GetQueryValue(query, "type", "tcp").replace("h2", "http");
             if (proxy_type == proxy_Trojan) {
-                stream->security = GetQueryValue(query, "security", "tls").replace("reality", "tls").replace("none", "");
+                stream->security = GetQueryValue(query, "security", "tls").replace("reality", "tls");
             } else {
-                stream->security = GetQueryValue(query, "security", "").replace("reality", "tls").replace("none", "");
+                stream->security = GetQueryValue(query, "security", "").replace("reality", "tls");
             }
         }
         serverAddress = url.host();
