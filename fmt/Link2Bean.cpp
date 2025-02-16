@@ -149,7 +149,7 @@ namespace NekoGui_fmt {
                 uuid = url.userName();
                 security = GetQueryValue(query, "encryption", "auto");
                 stream->network = GetQueryValue(query, "type", "tcp").replace("h2", "http");
-                stream->security = GetQueryValue(query, "security", "tls").replace("reality", "tls");
+                stream->security = GetQueryValue(query, "security", "").replace("reality", "tls");
             }
             serverAddress = url.host();
             serverPort = url.port();
