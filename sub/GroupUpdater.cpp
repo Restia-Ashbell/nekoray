@@ -580,15 +580,12 @@ namespace NekoGui_sub {
                     auto key = Node2QString(proxy["private-key"]);
                     QFile::exists(key) ? bean->privateKeyPath = key : bean->privateKey = key;
                     bean->privateKeyPassphrase = Node2QString(proxy["private-key-passphrase"]);
-                    bean->hostKey = Node2QString(proxy["host-key"]);
-                    bean->hostKeyAlgorithms = Node2QString(proxy["host-key-algorithms"]);
+                    bean->hostKey = Node2QStringList(proxy["host-key"]).join(",");
+                    bean->hostKeyAlgorithms = Node2QStringList(proxy["host-key-algorithms"]).join(",");
                 } else if (type == "wireguard") {
                     auto getFieldValue = [&](const auto &key) -> QString {
-                        QString value = Node2QString(proxy[key]);
-                        if (value.isEmpty() && proxy["peers"]) {
-                            value = Node2QString(proxy["peers"][0][key]);
-                        }
-                        return value;
+                        auto node = proxy[key] ? proxy[key] : proxy["peers"][0][key];
+                        return node.IsSequence() ? Node2QStringList(node).join(",") : Node2QString(node);
                     };
 
                     auto bean = ent->WireGuardBean();
@@ -602,14 +599,7 @@ namespace NekoGui_sub {
 
                     QString ip = Node2QString(proxy["ip"]);
                     QString ipv6 = Node2QString(proxy["ipv6"]);
-                    QStringList localAddresses;
-                    if (!ip.isEmpty()) {
-                        localAddresses.append('"' + ip + '"');
-                    }
-                    if (!ipv6.isEmpty()) {
-                        localAddresses.append('"' + ipv6 + '"');
-                    }
-                    bean->localAddress = "[" + localAddresses.join(", ") + "]";
+                    bean->localAddress = ip.isEmpty() ? ipv6 : (ipv6.isEmpty() ? ip : ip + "," + ipv6);
                 } else {
                     MW_show_log(QObject::tr("第 %1 个节点解析失败").arg(index));
                     continue;

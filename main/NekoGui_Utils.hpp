@@ -90,7 +90,7 @@ QJsonArray QList2QJsonArray(const QList<T> &list);
 
 QList<int> QJsonArray2QListInt(const QJsonArray &arr);
 
-QJsonArray QString2QJsonArray(const QString& str);
+QJsonArray QString2QJsonArray(const QString &str);
 
 #define QJSONARRAY_ADD(arr, add) \
     for (const auto &a: (add)) { \

@@ -134,12 +134,26 @@ QList<QString> QJsonArray2QListString(const QJsonArray &arr) {
     return list2;
 }
 
-QJsonArray QString2QJsonArray(const QString& str) {
-    auto doc = QJsonDocument::fromJson(str.toUtf8());
-    if (doc.isArray()) {
-        return doc.array();
+QJsonArray QString2QJsonArray(const QString &str) {
+    QJsonArray jsonArray;
+    QStringList list = str.split(",", Qt::SkipEmptyParts);
+
+    for (const QString &item : list) {
+        QString trimmedItem = item.trimmed();
+
+        bool isInt, isDouble;
+        int intValue = trimmedItem.toInt(&isInt);
+        double doubleValue = trimmedItem.toDouble(&isDouble);
+
+        if (isInt) {
+            jsonArray.append(intValue);
+        } else if (isDouble) {
+            jsonArray.append(doubleValue);
+        } else {
+            jsonArray.append(trimmedItem);
+        }
     }
-    return {};
+    return jsonArray;
 }
 
 QByteArray ReadFile(const QString &path) {
