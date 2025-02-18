@@ -595,7 +595,7 @@ namespace NekoGui_sub {
                     bean->preSharedKey = getFieldValue("pre-shared-key");
                     bean->reserved = getFieldValue("reserved");
                     bean->privateKey = Node2QString(proxy["private-key"]);
-                    bean->MTU = Node2Int(proxy["mtu"]);
+                    bean->MTU = Node2Int(proxy["mtu"], 1408);
 
                     QString ip = Node2QString(proxy["ip"]);
                     QString ipv6 = Node2QString(proxy["ipv6"]);
