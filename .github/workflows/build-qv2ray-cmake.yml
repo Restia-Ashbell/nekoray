@@ -32,7 +32,7 @@ jobs:
           repository: 'Restia-Ashbell/sing-box'
           path: CORE
       - name: Go Status
-        run: cd CORE && git ls-files | xargs cat | sha1sum > go_status
+        run: cd CORE && git ls-files | xargs cat | sha1sum > ../go_status
       - name: Cache Common Download
         id: cache-common
         uses: actions/cache@v4
