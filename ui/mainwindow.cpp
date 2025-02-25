@@ -66,6 +66,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // Setup misc UI
     themeManager->ApplyTheme(NekoGui::dataStore->theme);
+    // font
+    // 字体设置不放在这不会对菜单栏和标签栏生效，原因不明
+    if (!NekoGui::dataStore->font.isEmpty()) {
+        QFont currentFont = QApplication::font();
+        currentFont.setFamily(NekoGui::dataStore->font);
+        QApplication::setFont(currentFont);
+    }
     ui->setupUi(this);
     //
     connect(ui->menu_start, &QAction::triggered, this, [=]() { neko_start(); });
@@ -446,18 +453,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(TM_auto_update_subsctiption, &QTimer::timeout, this, [&] { UI_update_all_groups(true); });
     TM_auto_update_subsctiption_Reset_Minute(NekoGui::dataStore->sub_auto_update);
 
-    // font
-    if (!NekoGui::dataStore->font.isEmpty()) {
-        QFont currentFont = QApplication::font();
-        currentFont.setFamily(NekoGui::dataStore->font);
-        QApplication::setFont(currentFont);
-        foreach (QWidget *widget, QApplication::allWidgets()) {
-            if (widget != ui->masterLogBrowser) {
-                widget->setFont(currentFont);
-            }
-        }
-    }
-
     if (!NekoGui::dataStore->flag_tray) show();
 }
 
@@ -824,8 +819,7 @@ void MainWindow::refresh_status(const QString &traffic_update) {
     auto refresh_speed_label = [=] {
         if (NekoGui::dataStore->disable_traffic_stats) {
             ui->label_speed->setText("");
-        }
-        else if (traffic_update_cache == "") {
+        } else if (traffic_update_cache == "") {
             ui->label_speed->setText(QObject::tr("Proxy: %1\nDirect: %2").arg("", ""));
         } else {
             ui->label_speed->setText(traffic_update_cache);
@@ -1644,9 +1638,9 @@ void MainWindow::on_masterLogBrowser_customContextMenuRequested(const QPoint &po
 void MainWindow::on_tabWidget_customContextMenuRequested(const QPoint &p) {
     int clickedIndex = ui->tabWidget->tabBar()->tabAt(p);
     if (clickedIndex == -1) {
-        auto* menu = new QMenu(this);
-        auto* addAction = new QAction(tr("Add new Group"), this);
-        connect(addAction, &QAction::triggered, this, [=]{
+        auto *menu = new QMenu(this);
+        auto *addAction = new QAction(tr("Add new Group"), this);
+        connect(addAction, &QAction::triggered, this, [=] {
             auto ent = NekoGui::ProfileManager::NewGroup();
             auto dialog = new DialogEditGroup(ent, this);
             int ret = dialog->exec();
@@ -1664,12 +1658,12 @@ void MainWindow::on_tabWidget_customContextMenuRequested(const QPoint &p) {
     }
 
     ui->tabWidget->setCurrentIndex(clickedIndex);
-    auto* menu = new QMenu(this);
+    auto *menu = new QMenu(this);
 
-    auto* addAction = new QAction(tr("Add new Group"), this);
-    auto* deleteAction = new QAction(tr("Delete selected Group"), this);
-    auto* editAction = new QAction(tr("Edit selected Group"), this);
-    connect(addAction, &QAction::triggered, this, [=]{
+    auto *addAction = new QAction(tr("Add new Group"), this);
+    auto *deleteAction = new QAction(tr("Delete selected Group"), this);
+    auto *editAction = new QAction(tr("Edit selected Group"), this);
+    connect(addAction, &QAction::triggered, this, [=] {
         auto ent = NekoGui::ProfileManager::NewGroup();
         auto dialog = new DialogEditGroup(ent, this);
         int ret = dialog->exec();
@@ -1695,7 +1689,7 @@ void MainWindow::on_tabWidget_customContextMenuRequested(const QPoint &p) {
             show_group(newGroupId);
         }
     });
-    connect(editAction, &QAction::triggered, this, [=]{
+    connect(editAction, &QAction::triggered, this, [=] {
         auto id = NekoGui::profileManager->groupsTabOrder[clickedIndex];
         auto ent = NekoGui::profileManager->groups[id];
         auto dialog = new DialogEditGroup(ent, this);
